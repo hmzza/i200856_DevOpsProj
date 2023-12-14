@@ -1,4 +1,0 @@
-Run: docker build . -t <docker_username>/<image_name>:<version> in all three folders
-Run: docker login
-Run: docker push <docker_username>/<image_name>:<version>
-Run: docker-compose up in root directory
