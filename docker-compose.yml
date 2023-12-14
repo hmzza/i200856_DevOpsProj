@@ -1,0 +1,25 @@
+version: '3.3'
+
+services:
+    frontend:
+        image: <docker_username>/<image_name>:<version>
+        ports:
+            -   "3000:3000"
+        networks:
+            -   isolated_net
+    appoitments:
+        image: <docker_username>/<image_name>:<version>
+        ports:
+            -  "7070:7070"
+        networks:
+            -   isolated_net
+    docters:
+        image: <docker_username>/<image_name>:<version>
+        ports:
+            -  "9090:9090"
+        networks:
+            -   isolated_net
+
+
+networks:
+  isolated_net:
