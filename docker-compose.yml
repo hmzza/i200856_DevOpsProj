@@ -2,19 +2,19 @@ version: '3.3'
 
 services:
     frontend:
-        image: <docker_username>/<image_name>:<version>
+        image: hmzza/frontend-service:v1
         ports:
             -   "3000:3000"
         networks:
             -   isolated_net
     appoitments:
-        image: <docker_username>/<image_name>:<version>
+        image: hmzza/appointments-service:v1
         ports:
             -  "7070:7070"
         networks:
             -   isolated_net
     docters:
-        image: <docker_username>/<image_name>:<version>
+        image: hmzza/doctor-service:v1
         ports:
             -  "9090:9090"
         networks:

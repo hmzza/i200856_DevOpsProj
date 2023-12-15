@@ -1,6 +1,4 @@
-FROM python3.9
-
-COPY requirements.txt .
+FROM python
 
 RUN pip install Flask
 
