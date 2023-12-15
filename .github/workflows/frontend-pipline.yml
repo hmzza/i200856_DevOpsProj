@@ -2,13 +2,13 @@ name: Frontend Image CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
-      - 'frontend/**'
+      - "frontend/**"
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
-      - 'frontend/**'
+      - "frontend/**"
 
 concurrency: frontend-deployment
 
@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          fetch-depth: '0'
+          fetch-depth: "0"
       - name: Minor version for each merge
         id: tagger
         uses: anothrNick/github-tag-action@1.36.0
@@ -48,7 +48,7 @@ jobs:
         run: docker build . --file ./frontend/Dockerfile --tag $IMAGE_NAME:${{ steps.tagger.outputs.new_tag }}
       - name: Docker push
         run: docker push $IMAGE_NAME:${{ steps.tagger.outputs.new_tag }}
-        - name: Update docker-compose
+      - name: Update docker-compose
         uses: mikefarah/yq@master
         with:
           cmd: yq  -i '.services.doctors.image = "<docker_username>/<image_name>:${{ steps.tagger.outputs.new_tag }}"' docker-compose.yml
@@ -82,4 +82,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WITH_V: false
-
