@@ -28,11 +28,14 @@ jobs:
 
     - name: Update docker-compose file
       run: |
+          git fetch
+          git checkout main
+          git rebase origin/main
           sed -i 's|hmzza/appointments-service:.*|hmzza/appointments-service:${{ github.sha }}|' docker-compose.yml
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
           git add docker-compose.yml
           git commit -m "Update Docker Compose with new appointments image tag"
-          git push
+          git push origin main
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
