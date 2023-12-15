@@ -1,0 +1,85 @@
+name: Frontend Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'frontend/**'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'frontend/**'
+
+concurrency: frontend-deployment
+
+env:
+  IMAGE_NAME: hmzza/frontend-service
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+      - name: Minor version for each merge
+        id: tagger
+        uses: anothrNick/github-tag-action@1.36.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: false
+          DRY_RUN: true
+      - name: echo new tag
+        run: |
+          echo "The next tag version will be: ${{ steps.tagger.outputs.new_tag }}"
+      - name: echo tag
+        run: |
+          echo "The current tag is: ${{ steps.tagger.outputs.tag }}"
+      - name: echo part
+        run: |
+          echo "The version increment was: ${{ steps.tagger.outputs.part }}"
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - uses: actions/checkout@v3
+      - name: Build the Docker image
+        run: docker build . --file ./frontend/Dockerfile --tag $IMAGE_NAME:${{ steps.tagger.outputs.new_tag }}
+      - name: Docker push
+        run: docker push $IMAGE_NAME:${{ steps.tagger.outputs.new_tag }}
+      - name: Update docker-compose
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq  -i '.services.doctors.image = "<docker_username>/<image_name>:${{ steps.tagger.outputs.new_tag }}"' docker-compose.yml
+      - name: Commit and push changes
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git add docker-compose.yml
+          git commit -m "Update Docker Compose $IMAGE_NAME tag to ${{ steps.tagger.outputs.new_tag }}"
+          git push
+      - name: Minor version for each merge
+        id: taggerFinal
+        uses: anothrNick/github-tag-action@1.36.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: falsw
+      - name: Update docker-compose
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq  -i '.services.doctors.image = "<docker_username>/<image_name>:${{ steps.tagger.outputs.new_tag }}"' docker-compose.yml
+      - name: Commit and push changes
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git add docker-compose.yml
+          git commit -m "Update Docker Compose $IMAGE_NAME tag to ${{ steps.tagger.outputs.new_tag }}"
+          git push
+      - name: Minor version for each merge
+        id: taggerFinal
+        uses: anothrNick/github-tag-action@1.36.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: false
+
