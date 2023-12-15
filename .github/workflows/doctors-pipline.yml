@@ -1,20 +1,27 @@
-name: Doctors CI/CD
+name: Doctors Service CI/CD
 
 on:
   push:
     branches: [main]
     paths:
-      - 'doctors/**'
+      - "doctors/**"
   pull_request:
     branches: [main]
     paths:
-      - 'doctors/**'
+      - "doctors/**"
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: Build and push Docker image
         run: |
@@ -23,9 +30,9 @@ jobs:
 
       - name: Update docker-compose file
         run: |
-          sed -i 's|hmzza/doctor-service:.*|hmzza/doctor-service:${{ github.sha }}|' docker-compose.yml
+          sed -i 's|hmzza/doctor-service:v1|hmzza/doctor-service:${{ github.sha }}|' docker-compose.yml
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
           git add docker-compose.yml
-          git commit -m "Update Docker Compose with new doctors image tag"
-          git push
+          git commit -m "Update docker-compose for doctor service with new image tag ${{ github.sha }}"
+          git push origin main
