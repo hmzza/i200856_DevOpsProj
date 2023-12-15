@@ -29,7 +29,7 @@ jobs:
 
       - name: Update docker-compose file
         run: |
-          sed -i 's|hmzza/frontend-service:v1|hmzza/frontend-service:${{ github.sha }}|' docker-compose.yml
+          sed -i 's|hmzza/frontend-service:.*|hmzza/frontend-service:${{ github.sha }}|' docker-compose.yml
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
           git add docker-compose.yml
