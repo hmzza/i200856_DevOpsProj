@@ -21,6 +21,18 @@ services:
       - "9090:9090"
     networks:
       - isolated_net
+  
+  mysql:
+    image: mysql:latest
+    environment:
+        MYSQL_ROOT_PASSWORD: hmzza
+        MYSQL_DATABASE: mydb_test
+        MYSQL_USER: hmzza
+        MYSQL_PASSWORD: hamzadb123
+
+    ports:
+      - "3306:3306"
+
 
 networks:
   isolated_net:
