@@ -1,67 +1,31 @@
-name: Doctors Image CI
+name: Doctors CI/CD
 
 on:
   push:
-    branches: ["main"]
+    branches: [main]
     paths:
-      - "doctors/**"
+      - 'doctors/**'
   pull_request:
-    branches: ["main"]
+    branches: [main]
     paths:
-      - "doctors/**"
-
-concurrency: doctors-deployment
-
-env:
-  IMAGE_NAME: hmzza/doctor-service
+      - 'doctors/**'
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-        with:
-          fetch-depth: "0"
-      - name: Minor version for each merge
-        id: tagger
-        uses: anothrNick/github-tag-action@1.36.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          WITH_V: false
-          DRY_RUN: true
-      - name: echo new tag
+
+      - name: Build and push Docker image
         run: |
-          echo "The next tag version will be: ${{ steps.tagger.outputs.new_tag }}"
-      - name: echo tag
+          docker build -t hmzza/doctor-service:${{ github.sha }} doctors/
+          docker push hmzza/doctor-service:${{ github.sha }}
+
+      - name: Update docker-compose file
         run: |
-          echo "The current tag is: ${{ steps.tagger.outputs.tag }}"
-      - name: echo part
-        run: |
-          echo "The version increment was: ${{ steps.tagger.outputs.part }}"
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-      - uses: actions/checkout@v3
-      - name: Build the Docker image
-        run: docker build . --file ./doctors/Dockerfile --tag $IMAGE_NAME:${{ steps.tagger.outputs.new_tag }}
-      - name: Docker push
-        run: docker push $IMAGE_NAME:${{ steps.tagger.outputs.new_tag }}
-      - name: Update docker-compose
-        uses: mikefarah/yq@master
-        with:
-          cmd: yq  -i '.services.doctors.image = "hmzza/doctor-service:${{ steps.tagger.outputs.new_tag }}"' docker-compose.yml
-      - name: Commit and push changes
-        run: |
+          sed -i 's|hmzza/doctor-service:.*|hmzza/doctor-service:${{ github.sha }}|' docker-compose.yml
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
           git add docker-compose.yml
-          git commit -m "Update Docker Compose $IMAGE_NAME tag to ${{ steps.tagger.outputs.new_tag }}"
+          git commit -m "Update Docker Compose with new doctors image tag"
           git push
-      - name: Minor version for each merge
-        id: taggerFinal
-        uses: anothrNick/github-tag-action@1.36.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          WITH_V: false

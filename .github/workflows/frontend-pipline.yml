@@ -1,63 +1,31 @@
-name: Frontend Image CI
+name: Frontend CI/CD
 
 on:
   push:
-    branches: ["main"]
+    branches: [main]
     paths:
-      - "frontend/**"
+      - 'frontend/**'
   pull_request:
-    branches: ["main"]
+    branches: [main]
     paths:
-      - "frontend/**"
-
-concurrency:
-  group: frontend-deployment-${{ github.ref }}
-  cancel-in-progress: true
-
-env:
-  IMAGE_NAME: hmzza/frontend-service
+      - 'frontend/**'
 
 jobs:
-  build-and-deploy:
+  build-and-push:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-      - name: Generate New Tag
-        id: tagger
-        uses: anothrNick/github-tag-action@1.36.0
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          WITH_V: false
-          DEFAULT_BUMP: patch
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-
-      - name: Build the Docker image
-        run: docker build . --file ./frontend/Dockerfile --tag ${{ env.IMAGE_NAME }}:${{ steps.tagger.outputs.new_tag }}
-
-      - name: Docker push
-        run: docker push ${{ env.IMAGE_NAME }}:${{ steps.tagger.outputs.new_tag }}
-
-      # Assuming you want to update the docker-compose.yml in the repository if the docker-compose.yml file is in the root directory of the repository.
-      - name: Update docker-compose
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      - name: Build and push Docker image
         run: |
-          yq e -i '.services.frontend.image = "${{ env.IMAGE_NAME }}:${{ steps.tagger.outputs.new_tag }}"' docker-compose.yml
+          docker build -t hmzza/frontend-service:${{ github.sha }} frontend/
+          docker push hmzza/frontend-service:${{ github.sha }}
+
+      - name: Update docker-compose file
+        run: |
+          sed -i 's|hmzza/frontend-service:.*|hmzza/frontend-service:${{ github.sha }}|' docker-compose.yml
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
           git add docker-compose.yml
-          git commit -m "Update Docker Compose ${IMAGE_NAME} tag to ${{ steps.tagger.outputs.new_tag }}"
+          git commit -m "Update Docker Compose with new frontend image tag"
           git push
-
-      - name: Minor version for each merge
-        id: taggerFinal
-        uses: anothrNick/github-tag-action@1.36.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          WITH_V: false

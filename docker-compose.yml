@@ -1,25 +1,26 @@
 version: '3.3'
 
 services:
-    frontend:
-        image: hmzza/frontend-service:v1
-        ports:
-            -   "3000:3000"
-        networks:
-            -   isolated_net
-    appoitments:
-        image: hmzza/appointments-service:v1
-        ports:
-            -  "7070:7070"
-        networks:
-            -   isolated_net
-    docters:
-        image: hmzza/doctor-service:v1
-        ports:
-            -  "9090:9090"
-        networks:
-            -   isolated_net
+  frontend:
+    image: hmzza/frontend-service:v1 # This tag will be updated by CI/CD process
+    ports:
+      - "3000:3000"
+    networks:
+      - isolated_net
 
+  appointments:
+    image: hmzza/appointments-service:v1 # This tag will be updated by CI/CD process
+    ports:
+      - "7070:7070"
+    networks:
+      - isolated_net
+
+  doctors:
+    image: hmzza/doctor-service:v1 # This tag will be updated by CI/CD process
+    ports:
+      - "9090:9090"
+    networks:
+      - isolated_net
 
 networks:
   isolated_net:
