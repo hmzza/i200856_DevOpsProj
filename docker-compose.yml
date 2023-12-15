@@ -16,7 +16,7 @@ services:
       - isolated_net
 
   doctors:
-    image: hmzza/doctor-service:c5e78aa161f3ee0d08ae8b49727f51551e0b25c0
+    image: hmzza/doctor-service:v1
     ports:
       - "9090:9090"
     networks:
