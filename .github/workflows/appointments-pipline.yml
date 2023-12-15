@@ -34,3 +34,5 @@ jobs:
           git add docker-compose.yml
           git commit -m "Update Docker Compose with new appointments image tag"
           git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
