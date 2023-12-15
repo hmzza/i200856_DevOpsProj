@@ -41,8 +41,8 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
       - uses: actions/checkout@v3
       - name: Build the Docker image
         run: docker build . --file ./doctors/Dockerfile --tag $IMAGE_NAME:${{ steps.tagger.outputs.new_tag }}
@@ -51,7 +51,7 @@ jobs:
       - name: Update docker-compose
         uses: mikefarah/yq@master
         with:
-          cmd: yq  -i '.services.doctors.image = "<docker_username>/<image_name>:${{ steps.tagger.outputs.new_tag }}"' docker-compose.yml
+          cmd: yq  -i '.services.doctors.image = "hmzza/doctor-service:${{ steps.tagger.outputs.new_tag }}"' docker-compose.yml
       - name: Commit and push changes
         run: |
           git config user.name "${{ github.actor }}"
