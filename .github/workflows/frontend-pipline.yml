@@ -13,7 +13,7 @@ on:
 concurrency: frontend-deployment
 
 env:
-  IMAGE_NAME: hmzza/frontend-service:v1
+  IMAGE_NAME: hmzza/frontend-service
 
 jobs:
   build:

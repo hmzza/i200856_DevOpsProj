@@ -10,7 +10,7 @@ on:
     paths:
       - "appointments/**"
 env:
-  IMAGE_NAME: hmzza/appointments-service:v1
+  IMAGE_NAME: hmzza/appointments-service
 
 jobs:
   build:
