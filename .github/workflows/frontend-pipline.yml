@@ -1,0 +1,32 @@
+name: Frontend CI/CD
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "frontend/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "frontend/**"
+concurrency: deployment
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build and push Docker image
+        run: |
+          docker build -t hmzza/frontend-service:${{ github.sha }} frontend/
+          docker push hmzza/frontend-service:${{ github.sha }}
+
+      - name: Update docker-compose file
+        run: |
+          sed -i 's|hmzza/frontend-service:v1|hmzza/frontend-service:${{ github.sha }}|' docker-compose.yml
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git add docker-compose.yml
+          git commit -m "Update Docker Compose with new frontend image tag"
+          git push
