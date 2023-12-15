@@ -9,7 +9,7 @@ services:
       - isolated_net
 
   appointments:
-    image: hmzza/appointments-service:5d47041dec285195188427970db939292d4e767a
+    image: hmzza/appointments-service:7f94000ed2f501ec1adc641f09dbb1828ff92d77
     ports:
       - "7070:7070"
     networks:
