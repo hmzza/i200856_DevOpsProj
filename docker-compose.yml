@@ -2,7 +2,7 @@ version: '3.3'
 
 services:
   frontend:
-    image: hmzza/frontend-service:v1
+    image: hmzza/frontend-service:a31b8b3bf9fe005723328295957be10acef45677
     ports:
       - "3000:3000"
     networks:
