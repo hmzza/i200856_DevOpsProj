@@ -3,8 +3,8 @@ name: Appointments CI/CD
 on:
   push:
     branches: [main]
-    # paths:
-    #   - "appointments/**"
+    paths:
+      - "appointments/**"
   pull_request:
     branches: [main]
     paths:
@@ -14,25 +14,25 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: docker login
-      env: 
-        DOCKER_USER:  ${{secrets.DOCKER_HUB_USERNAME}}
-        DOCKER_PASSWORD: ${{secrets.DOCKER_HUB_ACCESS_TOKEN}}
-      run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
+      - uses: actions/checkout@v2
+      - name: docker login
+        env:
+          DOCKER_USER: ${{secrets.DOCKER_HUB_USERNAME}}
+          DOCKER_PASSWORD: ${{secrets.DOCKER_HUB_ACCESS_TOKEN}}
+        run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
 
-    - name: Build and push Docker image
-      run: |
+      - name: Build and push Docker image
+        run: |
           docker build -t hmzza/appointments-service:${{ github.sha }} appointments/
           docker push hmzza/appointments-service:${{ github.sha }}
 
-    - name: Update docker-compose file
-      run: |
+      - name: Update docker-compose file
+        run: |
           sed -i 's|hmzza/appointments-service:.*|hmzza/appointments-service:${{ github.sha }}|' docker-compose.yml
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
           git add docker-compose.yml
           git commit -m "Update Docker Compose with new appointments image tag"
           git push
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
