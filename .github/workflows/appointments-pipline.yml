@@ -2,15 +2,15 @@ name: Appointments Image CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
-      - 'appointments/**'
+      - "appointments/**"
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
-      - 'appointments/**'
+      - "appointments/**"
 env:
-  IMAGE_NAME: <docker_username>/<image_name>
+  IMAGE_NAME: hmzza/appointments-service:v1
 
 jobs:
   build:
@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          fetch-depth: '0'
+          fetch-depth: "0"
       - name: Minor version for each merge
         id: tagger
         uses: anothrNick/github-tag-action@1.36.0
